@@ -1,3 +1,3 @@
-# TamModized
+# Melon Golem
 
-This is a shared library required by most of my mods
+Adds a Melon Golem to Minecraft
