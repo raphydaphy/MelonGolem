@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+repositories {
+	maven {
+		url = "http://dvs1.progwml6.com/files/maven"
+	}
+}
+
+version = "${project.minecraftVersion}-${modVersion}${modVersionValue}"
+group= "tamaized.melongolem"
+archivesBaseName = "MelonMod"
+
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    sourceCompatibility = targetCompatibility = '1.8'
+}
+
+minecraft {
+    version = "${project.minecraftVersion}-${project.forgeVersion}"
+    runDir = "run"
+    mappings = "${project.forgeMapping}"
+    makeObfSourceJar = false
+	useDepAts = true
+	replaceIn 'MelonMod.java'
+	replace '${version}', "${modVersion}${modVersionValue}"
+}
+
+dependencies {
+	
+}
+
+processResources
+{
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraftVersion
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version':project.modVersion+""+project.modVersionValue, 'mcversion':project.minecraftVersion
+    }
+        
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}

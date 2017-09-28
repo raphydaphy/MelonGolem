@@ -1,0 +1,16 @@
+[
+{
+  "modid": "melongolem",
+  "name": "MelonGolem",
+  "description": "Adds a Melon Golem",
+  "version": "${version}",
+  "mcversion": "[1.12,)",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Tamaized"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
