@@ -1,6 +1,7 @@
 {
     "pools": [
         {
+			"name": "melongolem",
             "rolls": 1,
             "entries": [
                 {
