@@ -27,7 +27,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
@@ -40,6 +42,8 @@ import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.common.IShearable;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import tamaized.melongolem.MelonMod;
 
 import javax.annotation.Nonnull;
@@ -163,6 +167,19 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 		return list;
 	}
 
+	@Override
+	public void onDeath(DamageSource cause) {
+		super.onDeath(cause);
+		ItemStack stack = getHead();
+		if (!world.isRemote && !stack.isEmpty()) {
+			EntityItem e = new EntityItem(world, posX, posY, posZ, stack);
+			e.motionY += rand.nextFloat() * 0.05F;
+			e.motionX += (rand.nextFloat() - rand.nextFloat()) * 0.1F;
+			e.motionZ += (rand.nextFloat() - rand.nextFloat()) * 0.1F;
+			world.spawnEntity(e);
+		}
+	}
+
 	@Nonnull
 	@Override
 	@SuppressWarnings("deprecation")
@@ -175,7 +192,7 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		IBlockState state = Block.getStateById(compound.getInteger("state"));
-		setHead(new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state)));
+		setHead(state.getBlock().getPickBlock(state, null, world, BlockPos.ORIGIN, null));
 		super.readFromNBT(compound);
 	}
 
@@ -192,6 +209,9 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 	static class EntityAISearchAndEatMelons extends EntityAIBase {
 
 		private final EntityLiving parent;
+		private int cooldown;
+		private BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		private boolean foundMelon = false;
 
 		EntityAISearchAndEatMelons(EntityLiving entity) {
 			parent = entity;
@@ -204,14 +224,92 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 		}
 
 		@Override
+		public void resetTask() {
+			cooldown = 0;
+		}
+
+		@Override
 		public void updateTask() {
-			final double radius = 25;
+			if (parent == null)
+				return;
+			if (cooldown > 0)
+				cooldown--;
+			final int radius = 25;
 			AxisAlignedBB area = new AxisAlignedBB(parent.posX - radius, parent.posY - radius, parent.posZ - radius, parent.posX + radius, parent.posY + radius, parent.posZ + radius);
 			List<EntityItem> items = parent.world.getEntitiesWithinAABB(EntityItem.class, area);
 			for (EntityItem item : items) {
-				if (item.getItem().getItem() == Items.MELON || item.getItem().getItem() == Item.getItemFromBlock(Blocks.MELON_BLOCK)) {
+				if (parent.getNavigator().noPath() && item.getItem().getItem() == Items.MELON || item.getItem().getItem() == Item.getItemFromBlock(Blocks.MELON_BLOCK)) {
 					parent.getNavigator().tryMoveToEntityLiving(item, 1.25F);
 					parent.getLookHelper().setLookPositionWithEntity(item, 30.0F, 30.0F);
+				}
+				if (cooldown <= 0 && item.isEntityAlive() && item.getItem().getItem() == Items.MELON && item.getEntityBoundingBox().intersects(parent.getEntityBoundingBox().grow(1))) {
+					item.getItem().shrink(1);
+					parent.playSound(SoundEvents.ENTITY_PLAYER_BURP, 1F, 1F);
+					parent.heal(1F);
+					cooldown = 30 + parent.getRNG().nextInt(40);
+				}
+			}
+			if (parent.getNavigator().noPath()) {
+				foundMelon = false;
+				search:
+				for (int x = -radius; x < radius; x++)
+					for (int y = -radius; y < radius; y++)
+						for (int z = -radius; z < radius; z++) {
+							pos.setPos(parent.getPosition().add(x, y, z));
+							if (parent.world.isBlockLoaded(pos)) {
+								TileEntity te = parent.world.getTileEntity(pos);
+								if (te != null && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP)) {
+									IItemHandler cap = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+									if (cap != null)
+										for (int i = 0; i < cap.getSlots(); i++) {
+											if (cap.getStackInSlot(i).getItem() == Items.MELON) {
+												foundMelon = parent.getDistance(pos.getX(), pos.getY(), pos.getZ()) < 2 || parent.getNavigator().tryMoveToXYZ(pos.getX(), pos.getY(), pos.getZ(), 1.25F);
+												if (foundMelon)
+													break search;
+											}
+										}
+								}
+							}
+						}
+			}
+			if (foundMelon) {
+				// Validate
+				if (!parent.world.isBlockLoaded(pos)) {
+					parent.getNavigator().clearPathEntity();
+					foundMelon = false;
+					return;
+				}
+				TileEntity te = parent.world.getTileEntity(pos);
+				if (te == null || !te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP)) {
+					parent.getNavigator().clearPathEntity();
+					foundMelon = false;
+					return;
+				}
+				IItemHandler cap = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP);
+				if (cap == null) {
+					parent.getNavigator().clearPathEntity();
+					foundMelon = false;
+					return;
+				}
+				boolean valid = false;
+				int i;
+				for (i = 0; i < cap.getSlots(); i++) {
+					if (cap.getStackInSlot(i).getItem() == Items.MELON) {
+						valid = true;
+						break;
+					}
+				}
+				if (!valid) {
+					parent.getNavigator().clearPathEntity();
+					foundMelon = false;
+					return;
+				}
+
+				if (cooldown <= 0 && parent.getDistance(pos.getX(), pos.getY(), pos.getZ()) < 2) {
+					cap.getStackInSlot(i).shrink(1);
+					parent.playSound(SoundEvents.ENTITY_PLAYER_BURP, 1F, 1F);
+					parent.heal(1F);
+					cooldown = 10 + parent.getRNG().nextInt(40);
 				}
 			}
 		}

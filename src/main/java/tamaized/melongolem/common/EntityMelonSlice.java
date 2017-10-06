@@ -45,7 +45,7 @@ public class EntityMelonSlice extends EntityThrowable {
 		if (result.entityHit != null) {
 			if(result.entityHit == getThrower())
 				return;
-			int i = 0;
+			int i = 4;
 
 			result.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), (float) i);
 		}
