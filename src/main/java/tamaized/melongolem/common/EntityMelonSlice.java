@@ -10,6 +10,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tamaized.melongolem.MelonConfig;
 
 import javax.annotation.Nonnull;
 
@@ -44,9 +45,7 @@ public class EntityMelonSlice extends EntityThrowable {
 		if (result.entityHit != null) {
 			if (result.entityHit == getThrower())
 				return;
-			int i = 4;
-
-			result.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), (float) i);
+			result.entityHit.attackEntityFrom(DamageSource.causeThrownDamage(this, getThrower()), MelonConfig.damage);
 		}
 
 		if (!this.world.isRemote) {

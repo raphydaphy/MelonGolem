@@ -44,6 +44,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import tamaized.melongolem.MelonConfig;
 import tamaized.melongolem.MelonMod;
 
 import javax.annotation.Nonnull;
@@ -80,7 +81,7 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 	@Override
 	protected void applyEntityAttributes() {
 		super.applyEntityAttributes();
-		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(8.0D);
+		this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(MelonConfig.health);
 		this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
 	}
 
@@ -135,6 +136,8 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 	@Override
 	@SuppressWarnings("deprecation")
 	protected boolean processInteract(EntityPlayer player, EnumHand hand) {
+		if (!MelonConfig.hats)
+			return false;
 		ItemStack stack = player.getHeldItem(hand);
 		if (!stack.isEmpty() && getHead().isEmpty()) {
 			if (Block.getBlockFromItem(stack.getItem()) != Blocks.AIR) {
@@ -162,7 +165,7 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 
 	@Override
 	public List<ItemStack> onSheared(@Nonnull ItemStack item, IBlockAccess world, BlockPos pos, int fortune) {
-		List<ItemStack> list = Lists.newArrayList(getHead());
+		List<ItemStack> list = Lists.newArrayList(MelonConfig.shear ? getHead() : ItemStack.EMPTY);
 		setHead(ItemStack.EMPTY);
 		return list;
 	}
@@ -220,7 +223,7 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 
 		@Override
 		public boolean shouldExecute() {
-			return parent.getHealth() < parent.getMaxHealth();
+			return MelonConfig.eats && parent.getHealth() < parent.getMaxHealth();
 		}
 
 		@Override
@@ -245,7 +248,7 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 				if (cooldown <= 0 && item.isEntityAlive() && item.getItem().getItem() == Items.MELON && item.getEntityBoundingBox().intersects(parent.getEntityBoundingBox().grow(1))) {
 					item.getItem().shrink(1);
 					parent.playSound(SoundEvents.ENTITY_PLAYER_BURP, 1F, 1F);
-					parent.heal(1F);
+					parent.heal(MelonConfig.heal);
 					cooldown = 30 + parent.getRNG().nextInt(40);
 				}
 			}
@@ -308,7 +311,7 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 				if (cooldown <= 0 && parent.getDistance(pos.getX(), pos.getY(), pos.getZ()) < 2) {
 					cap.getStackInSlot(i).shrink(1);
 					parent.playSound(SoundEvents.ENTITY_PLAYER_BURP, 1F, 1F);
-					parent.heal(1F);
+					parent.heal(MelonConfig.heal);
 					cooldown = 10 + parent.getRNG().nextInt(40);
 				}
 			}
