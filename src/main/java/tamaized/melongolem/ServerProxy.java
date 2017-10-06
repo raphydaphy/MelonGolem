@@ -1,5 +1,6 @@
 package tamaized.melongolem;
 
+@SuppressWarnings("unused")
 public class ServerProxy implements IModProxy {
 
 	@Override

@@ -1,6 +1,5 @@
 package tamaized.melongolem;
 
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import tamaized.melongolem.client.RenderMelonGolem;
 import tamaized.melongolem.client.RenderMelonSlice;

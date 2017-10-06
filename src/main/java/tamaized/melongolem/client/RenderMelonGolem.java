@@ -9,6 +9,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import tamaized.melongolem.MelonMod;
 import tamaized.melongolem.common.EntityMelonGolem;
 
+import javax.annotation.Nonnull;
+
 @SideOnly(Side.CLIENT)
 public class RenderMelonGolem extends RenderLiving<EntityMelonGolem> {
 	private static final ResourceLocation TEXTURES = new ResourceLocation(MelonMod.modid, "textures/entity/golem.png");
@@ -19,7 +21,7 @@ public class RenderMelonGolem extends RenderLiving<EntityMelonGolem> {
 	}
 
 	@Override
-	protected ResourceLocation getEntityTexture(EntityMelonGolem entity) {
+	protected ResourceLocation getEntityTexture(@Nonnull EntityMelonGolem entity) {
 		return TEXTURES;
 	}
 }

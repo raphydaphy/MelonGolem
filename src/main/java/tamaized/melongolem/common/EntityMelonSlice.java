@@ -1,7 +1,6 @@
 package tamaized.melongolem.common;
 
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityBlaze;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -43,7 +42,7 @@ public class EntityMelonSlice extends EntityThrowable {
 	@Override
 	protected void onImpact(@Nonnull RayTraceResult result) {
 		if (result.entityHit != null) {
-			if(result.entityHit == getThrower())
+			if (result.entityHit == getThrower())
 				return;
 			int i = 4;
 

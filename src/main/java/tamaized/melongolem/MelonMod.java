@@ -22,10 +22,10 @@ public class MelonMod {
 	public static final String modid = "melongolem";
 	@Instance(modid)
 	public static MelonMod instance = new MelonMod();
-	private static int entityID;
-	public Logger logger;
 	@SidedProxy(clientSide = "tamaized.melongolem.ClientProxy", serverSide = "tamaized.melongolem.ServerProxy")
 	public static IModProxy proxy;
+	private static int entityID;
+	public Logger logger;
 
 	public static String getVersion() {
 		return version;

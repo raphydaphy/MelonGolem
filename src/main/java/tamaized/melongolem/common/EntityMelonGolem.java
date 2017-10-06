@@ -168,7 +168,7 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 	}
 
 	@Override
-	public void onDeath(DamageSource cause) {
+	public void onDeath(@Nonnull DamageSource cause) {
 		super.onDeath(cause);
 		ItemStack stack = getHead();
 		if (!world.isRemote && !stack.isEmpty()) {
