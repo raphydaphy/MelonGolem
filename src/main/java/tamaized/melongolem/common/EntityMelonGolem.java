@@ -32,6 +32,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -46,6 +47,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import tamaized.melongolem.MelonConfig;
 import tamaized.melongolem.MelonMod;
+import tamaized.melongolem.MelonSounds;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,9 +58,12 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 	private static final DataParameter<ItemStack> HEAD = EntityDataManager.createKey(EntityMelonGolem.class, DataSerializers.ITEM_STACK);
 	private static final ResourceLocation LOOT = LootTableList.register(new ResourceLocation(MelonMod.modid, "melongolem"));
 
+	private final float pitch;
+
 	public EntityMelonGolem(World worldIn) {
 		super(worldIn);
 		this.setSize(0.7F, 1.9F);
+		pitch = rand.nextFloat() * 3.0F;
 	}
 
 	@Override
@@ -115,10 +120,15 @@ public class EntityMelonGolem extends EntityGolem implements IRangedAttackMob, I
 		return LOOT;
 	}
 
+	@Override
+	protected float getSoundPitch() {
+		return MelonConfig.tehnutMode ? pitch + rand.nextFloat() * 0.25F - 0.50F : super.getSoundPitch();
+	}
+
 	@Nullable
 	@Override
 	protected SoundEvent getAmbientSound() {
-		return SoundEvents.ENTITY_SMALL_SLIME_SQUISH;
+		return MelonConfig.tehnutMode ? MelonSounds.daddy : SoundEvents.ENTITY_SMALL_SLIME_SQUISH;
 	}
 
 	@Nullable

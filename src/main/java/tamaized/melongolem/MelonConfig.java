@@ -28,6 +28,9 @@ public class MelonConfig {
 	@Config.Name("Melon Heal Amount")
 	public static float heal = 1.0F;
 
+	@Config.Name("TehNut Mode")
+	public static boolean tehnutMode = false;
+
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
 		if (event.getModID().equals(MelonMod.modid)) {
