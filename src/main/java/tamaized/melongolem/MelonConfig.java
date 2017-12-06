@@ -31,6 +31,9 @@ public class MelonConfig {
 	@Config.Name("TehNut Mode")
 	public static boolean tehnutMode = false;
 
+	@Config.Name("TTS Signs")
+	public static boolean tts = true;
+
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
 		if (event.getModID().equals(MelonMod.modid)) {

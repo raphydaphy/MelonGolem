@@ -9,11 +9,14 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import tamaized.melongolem.common.EntityMelonGolem;
 import tamaized.melongolem.common.EntityMelonSlice;
+import tamaized.melongolem.network.NetworkMessages;
 
 @Mod(modid = MelonMod.modid, name = "EntityMelonGolem", version = MelonMod.version, acceptedMinecraftVersions = "[1.12,)")
 public class MelonMod {
@@ -26,6 +29,7 @@ public class MelonMod {
 	public static IModProxy proxy;
 	private static int entityID;
 	public Logger logger;
+	public static SimpleNetworkWrapper network;
 
 	public static String getVersion() {
 		return version;
@@ -46,6 +50,8 @@ public class MelonMod {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		logger = LogManager.getLogger(modid);
+
+		NetworkMessages.register(network = NetworkRegistry.INSTANCE.newSimpleChannel(modid));
 
 		registerEntity("melon_golem", EntityMelonGolem.class, 128, 1, true, 0xFF00, 0x0);
 		registerEntity("melon_slice", EntityMelonSlice.class, 128, 1, true);

@@ -1,5 +1,7 @@
 package tamaized.melongolem;
 
+import tamaized.melongolem.common.EntityMelonGolem;
+
 public interface IModProxy {
 
 	void preinit();
@@ -7,5 +9,7 @@ public interface IModProxy {
 	void init();
 
 	void postInit();
+
+	void openMelonSignGui(EntityMelonGolem golem);
 
 }
