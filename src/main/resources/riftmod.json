@@ -1,0 +1,12 @@
+{
+  "id": "melongolem",
+  "name": "Melon Golem",
+  "authors": [
+    "raphydaphy",
+    "tamaized"
+  ],
+  "listeners": [
+    "tamaized.melongolem.MelonGolem",
+    "tamaized.melongolem.core.MelonGolemCore"
+  ]
+}
